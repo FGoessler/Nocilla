@@ -72,6 +72,14 @@
     return [NSDictionary dictionaryWithDictionary:self.mutableHeaders];
 }
 
+- (NSURLRequest *)redirectRequest {
+	if (_statusCode > 299 && _statusCode < 400 && [_mutableHeaders objectForKey:@"Location"] != nil) {
+		return [NSURLRequest requestWithURL:[NSURL URLWithString:[_mutableHeaders objectForKey:@"Location"]]];
+	}
+
+	return nil;
+}
+
 - (NSString *)description {
     return [NSString stringWithFormat:@"StubRequest:\nStatus Code: %ld\nHeaders: %@\nBody: %@",
             (long)self.statusCode,

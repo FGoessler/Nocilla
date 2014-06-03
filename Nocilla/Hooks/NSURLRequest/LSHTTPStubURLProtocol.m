@@ -2,7 +2,6 @@
 #import "LSNocilla.h"
 #import "NSURLRequest+LSHTTPRequest.h"
 #import "LSStubRequest.h"
-#import "NSURLRequest+DSL.h"
 
 @interface NSHTTPURLResponse(UndocumentedInitializer)
 - (id)initWithURL:(NSURL*)URL statusCode:(NSInteger)statusCode headerFields:(NSDictionary*)headerFields requestTime:(double)requestTime;
@@ -37,10 +36,14 @@
                                                  requestTime:0];
         NSData *body = stubbedResponse.body;
 
-        [client URLProtocol:self didReceiveResponse:urlResponse
-         cacheStoragePolicy:NSURLCacheStorageNotAllowed];
-        [client URLProtocol:self didLoadData:body];
-        [client URLProtocolDidFinishLoading:self];
+		if(stubbedResponse.statusCode < 300 || stubbedResponse.statusCode > 399) {
+			[client URLProtocol:self didReceiveResponse:urlResponse
+			 cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+			[client URLProtocol:self didLoadData:body];
+			[client URLProtocolDidFinishLoading:self];
+		} else {
+			[client URLProtocol:self wasRedirectedToRequest:stubbedResponse.redirectRequest redirectResponse:urlResponse];
+		}
     }
 }
 
